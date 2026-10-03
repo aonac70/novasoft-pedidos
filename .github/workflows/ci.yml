@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Validar sintaxis (ESLint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar ESLint
+        run: npm run lint
+
+  test:
+    name: Pruebas (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22.x, 24.x]
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar pruebas unitarias y de integración
+        run: npm test
+
+  build:
+    name: Construir paquete
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Construir la aplicación
+        run: npm run build
+
+      - name: Verificar que la aplicación inicia
+        run: |
+          node dist/src/server.js &
+          curl --fail --silent --retry 5 --retry-connrefused --retry-delay 1 \
+            http://localhost:3000/api/health
+
+      - name: Publicar artefacto de construcción
+        uses: actions/upload-artifact@v7
+        with:
+          name: novasoft-pedidos-${{ github.sha }}
+          path: dist/
+          retention-days: 7

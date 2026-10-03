@@ -10,7 +10,9 @@ const { tasaIva } = require('../config');
  * @param {{ cantidad: number, precioUnitario: number }[]} items
  */
 function calcularTotales(items) {
-  const subtotal = redondear(items.reduce((acumulado, item) => acumulado + item.precioUnitario, 0));
+  const subtotal = redondear(
+    items.reduce((acumulado, { cantidad, precioUnitario }) => acumulado + cantidad * precioUnitario, 0),
+  );
   const iva = redondear(subtotal * tasaIva);
   const total = redondear(subtotal + iva);
   return { subtotal, iva, total };

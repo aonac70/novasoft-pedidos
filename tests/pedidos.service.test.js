@@ -24,6 +24,14 @@ describe('Servicio de pedidos', () => {
       ]);
       assert.deepEqual(totales, { subtotal: 29.99, iva: 4.5, total: 34.49 });
     });
+
+    it('multiplica el precio unitario por la cantidad de cada producto', () => {
+      const totales = servicio.calcularTotales([
+        { producto: 'Martillo', cantidad: 2, precioUnitario: 12.5 },
+        { producto: 'Caja de clavos', cantidad: 4, precioUnitario: 3.75 },
+      ]);
+      assert.deepEqual(totales, { subtotal: 40, iva: 6, total: 46 });
+    });
   });
 
   describe('crearPedido', () => {

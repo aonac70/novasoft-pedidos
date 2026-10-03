@@ -14,4 +14,8 @@ function crear(req, res) {
   res.status(201).location(`/api/pedidos/${pedido.id}`).json(pedido);
 }
 
-module.exports = { listar, obtener, crear };
+function cambiarEstado(req, res) {
+  res.json(servicio.cambiarEstado(req.params.id, req.body?.estado));
+}
+
+module.exports = { listar, obtener, crear, cambiarEstado };

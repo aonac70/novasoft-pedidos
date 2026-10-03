@@ -1,0 +1,23 @@
+# Dependencias
+node_modules/
+
+# Artefactos de construcción
+dist/
+coverage/
+*.zip
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Registros
+logs/
+*.log
+npm-debug.log*
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

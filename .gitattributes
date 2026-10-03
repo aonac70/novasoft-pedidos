@@ -1,0 +1,6 @@
+# Normaliza los finales de línea para evitar diferencias entre Windows, Linux y macOS
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.zip binary

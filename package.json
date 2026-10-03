@@ -1,6 +1,6 @@
 {
   "name": "novasoft-pedidos",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "API REST para la gestión de pedidos de la empresa NovaSoft",
   "main": "src/server.js",
   "private": true,

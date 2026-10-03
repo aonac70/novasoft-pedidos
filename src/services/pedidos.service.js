@@ -1,0 +1,57 @@
+const repositorio = require('../repositories/pedidos.repository');
+const { validarPedido } = require('../validators/pedido.validator');
+const { ESTADOS, esEstadoValido } = require('../models/estados');
+const { ErrorValidacion, ErrorNoEncontrado } = require('../utils/errores');
+const { redondear } = require('../utils/numeros');
+const { tasaIva } = require('../config');
+
+/**
+ * Calcula el subtotal, el IVA y el total de una lista de productos.
+ * @param {{ cantidad: number, precioUnitario: number }[]} items
+ */
+function calcularTotales(items) {
+  const subtotal = redondear(items.reduce((acumulado, item) => acumulado + item.precioUnitario, 0));
+  const iva = redondear(subtotal * tasaIva);
+  const total = redondear(subtotal + iva);
+  return { subtotal, iva, total };
+}
+
+function crearPedido(datos) {
+  const errores = validarPedido(datos);
+  if (errores.length > 0) {
+    throw new ErrorValidacion(errores);
+  }
+
+  const items = datos.items.map(({ producto, cantidad, precioUnitario }) => ({
+    producto: producto.trim(),
+    cantidad,
+    precioUnitario,
+  }));
+  const ahora = new Date().toISOString();
+
+  return repositorio.guardar({
+    cliente: datos.cliente.trim(),
+    items,
+    ...calcularTotales(items),
+    estado: ESTADOS.PENDIENTE,
+    creadoEn: ahora,
+    actualizadoEn: ahora,
+  });
+}
+
+function listarPedidos(filtro = {}) {
+  if (filtro.estado && !esEstadoValido(filtro.estado)) {
+    throw new ErrorValidacion([`El estado "${filtro.estado}" no existe`]);
+  }
+  return repositorio.buscarTodos(filtro);
+}
+
+function obtenerPedido(id) {
+  const pedido = repositorio.buscarPorId(Number(id));
+  if (!pedido) {
+    throw new ErrorNoEncontrado(`No existe un pedido con id ${id}`);
+  }
+  return pedido;
+}
+
+module.exports = { calcularTotales, crearPedido, listarPedidos, obtenerPedido };

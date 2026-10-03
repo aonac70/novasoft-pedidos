@@ -1,5 +1,7 @@
 # NovaSoft Pedidos
 
+[![CI](https://github.com/aonac70/novasoft-pedidos/actions/workflows/ci.yml/badge.svg)](https://github.com/aonac70/novasoft-pedidos/actions/workflows/ci.yml)
+
 API REST para la gestión de pedidos de la empresa **NovaSoft**, desarrollada como proyecto práctico de la asignatura *Gestión de la Configuración de Software* de la Universidad Estatal de Milagro (UNEMI).
 
 El repositorio aplica prácticas de gestión de la configuración: control de versiones con Git, modelo de ramas, Conventional Commits, revisión mediante Pull Requests, integración continua con GitHub Actions y entregas versionadas.
@@ -36,6 +38,7 @@ La API queda disponible en `http://localhost:3000`. El puerto puede cambiarse co
 | `npm run dev` | Inicia el servidor y lo reinicia al detectar cambios. |
 | `npm run lint` | Valida la sintaxis y el estilo del código con ESLint. |
 | `npm test` | Ejecuta las pruebas unitarias y de integración. |
+| `npm run build` | Genera el paquete de distribución en `dist/`. |
 
 ## Endpoints
 
@@ -76,6 +79,11 @@ src/
 └── validators/       # Validación de datos de entrada
 tests/                # Pruebas automatizadas
 ```
+
+## Integración continua y entregas
+
+- **CI** (`.github/workflows/ci.yml`): en cada push y Pull Request hacia `main` o `develop` ejecuta ESLint, las pruebas en Node.js 22 y 24 y la construcción del paquete.
+- **Release** (`.github/workflows/release.yml`): al subir una etiqueta `vX.Y.Z` publica el release en GitHub con el paquete `.zip` y las notas de `CHANGELOG.md`.
 
 ## Flujo de trabajo
 

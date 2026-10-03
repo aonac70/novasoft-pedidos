@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publicar release ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código de la etiqueta
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Validar y probar antes de publicar
+        run: |
+          npm run lint
+          npm test
+
+      - name: Construir la aplicación
+        run: npm run build
+
+      - name: Empaquetar la distribución
+        run: cd dist && zip -r "../novasoft-pedidos-${GITHUB_REF_NAME}.zip" .
+
+      - name: Extraer las notas de la versión desde CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v ver="[$VERSION]" '
+            /^## \[/ { if (encontrado) exit; if (index($0, ver)) { encontrado = 1; next } }
+            encontrado { print }
+          ' CHANGELOG.md > notas-version.md
+          test -s notas-version.md || echo "Versión ${VERSION}" > notas-version.md
+          cat notas-version.md
+
+      - name: Crear el release en GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "novasoft-pedidos-${GITHUB_REF_NAME}.zip" \
+            --title "NovaSoft Pedidos ${GITHUB_REF_NAME}" \
+            --notes-file notas-version.md \
+            --verify-tag

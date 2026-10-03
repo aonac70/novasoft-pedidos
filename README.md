@@ -48,6 +48,17 @@ La API queda disponible en `http://localhost:3000`. El puerto puede cambiarse co
 | `GET` | `/api/pedidos` | Lista los pedidos. Admite el filtro `?estado=PENDIENTE`. |
 | `GET` | `/api/pedidos/:id` | Obtiene un pedido por su identificador. |
 | `POST` | `/api/pedidos` | Registra un pedido nuevo y calcula subtotal, IVA (15 %) y total. |
+| `PATCH` | `/api/pedidos/:id/estado` | Cambia el estado del pedido respetando su ciclo de vida. |
+
+### Ciclo de vida del pedido
+
+```text
+PENDIENTE ──► EN_PREPARACION ──► ENVIADO ──► ENTREGADO
+    │               │
+    └───────────────┴──► CANCELADO
+```
+
+Una transición no permitida (por ejemplo, de `PENDIENTE` a `ENTREGADO`) responde con `409 Conflict`.
 
 ### Ejemplo: registrar un pedido
 
